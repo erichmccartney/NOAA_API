@@ -9,5 +9,6 @@ namespace NOAA_API.DataAccess
 
     public DbSet<Station> Stations { get; set; }
     public DbSet<Park> Parks { get; set; }
-  }
+    public DbSet<StationParkDistance> StationParkDistances { get; set; }
+    }
 }

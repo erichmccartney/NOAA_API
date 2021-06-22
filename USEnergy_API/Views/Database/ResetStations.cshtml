@@ -1,0 +1,21 @@
+﻿@model List<DB.Models.Station>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Stations Reset</title>
+</head>
+<body>
+    <h2>Stations table has been reset and loaded with NOAA data!</h2>
+
+    @foreach (var station in Model)
+    {
+        @(station.name + " " + station.latitude + " " + station.longitude)
+        <br />
+    }
+</body>
+</html>

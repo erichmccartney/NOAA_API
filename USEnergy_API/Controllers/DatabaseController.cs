@@ -1,20 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using Newtonsoft.Json;
+using NOAA_API.DataAccess;
+using NOAA_API.APIHandlers;
 using NOAA_API.Models;
 using System;
-using System.Net.Http;
-using NOAA_API.DataAccess;
+using System.Linq;
+using System.Collections.Generic;
+using GeoCoordinatePortable;
 
 namespace NOAA_API.Controllers
 {
     public class DatabaseController : Controller
     {
-        HttpClient httpClient;
-
-        static string BASE_URL = "https://www.ncdc.noaa.gov/cdo-web/api/v2/";  // website where data is avalible
-
-        static string API_KEY = "HTwlDByEqCdjreGaPbbmkMYBpGpgfZKf"; //Add your API key here inside ""
-
         public ApplicationDbContext dbContext;
 
         public DatabaseController(ApplicationDbContext context)
@@ -25,58 +21,71 @@ namespace NOAA_API.Controllers
         {
             return View();
         }
-        public IActionResult ResetDB()
+
+        public IActionResult AddPark()
+        {
+            DB.Models.Park park = new();
+            park.name = "Test";
+            park.latitude = 34.26F;
+            park.longitude = -87.18F;
+            dbContext.Parks.Add(park);
+
+            foreach(var station in dbContext.Stations)
+            {
+                // For every station within 1 degree latitude and longitude,
+                // record a distance relationship
+                if (Math.Abs(station.latitude - park.latitude) < 1.0F
+                    && Math.Abs(station.longitude - park.longitude) < 1.0F)
+                {
+                    var stationCoord = new GeoCoordinate(station.latitude, station.longitude);
+                    var parkCoord = new GeoCoordinate(park.latitude, park.longitude);
+                    var distance = stationCoord.GetDistanceTo(parkCoord);
+
+                    DB.Models.StationParkDistance distanceRecord = new();
+                    distanceRecord.stationId = station.id;
+                    distanceRecord.parkId = park.id;
+                    distanceRecord.distance = distance;
+                    dbContext.StationParkDistances.Add(distanceRecord);
+                }
+            }
+            dbContext.SaveChanges();
+
+            // FIXME this doesn't seem to be returning anything.
+            var results = (from d in dbContext.StationParkDistances
+                           join s in dbContext.Stations on d.stationId equals s.id
+                           join p in dbContext.Parks on d.parkId equals p.id
+                           where p.name == park.name && p.latitude == park.latitude && p.longitude == park.longitude
+                           select new DB.Models.DistanceViewModel
+                           {
+                               stationName = s.name,
+                               parkName = p.name,
+                               distance = d.distance
+                           });
+            return View(results.ToList());
+        }
+
+        public IActionResult ResetStations()
         {
             // Clear the Stations table.
-            //dbContext.Stations.RemoveRange(dbContext.Stations);
+            dbContext.Stations.RemoveRange(dbContext.Stations);
 
             // Get new station data from NOAA
-            httpClient = new HttpClient();
-            httpClient.DefaultRequestHeaders.Accept.Clear();
-            httpClient.DefaultRequestHeaders.Add("token", API_KEY);
-            httpClient.DefaultRequestHeaders.Accept.Add(
-                new System.Net.Http.Headers.MediaTypeWithQualityHeaderValue("application/json"));
+            NOAA_APIHandler noaaHandler = new();
+            Stations stations = noaaHandler.getStations();
 
-            string NOAA_API_PATH = BASE_URL + "/stations?"; //parks?limit=20";
-            string stationdata = "";
-
-            Stations stations = null;
-
-            httpClient.BaseAddress = new Uri(NOAA_API_PATH);
-
-            try
+            // Add station data to the Stations table.
+            foreach (Station station in stations.results)
             {
-                HttpResponseMessage response = httpClient.GetAsync(NOAA_API_PATH).GetAwaiter().GetResult();
+                DB.Models.Station dbStation = new();
+                dbStation.name = station.name;
+                dbStation.latitude = station.latitude;
+                dbStation.longitude = station.longitude;
 
-                if (response.IsSuccessStatusCode)
-                {
-                    stationdata = response.Content.ReadAsStringAsync().GetAwaiter().GetResult();
-                }
-
-                if (!stationdata.Equals(""))
-                {
-                    // JsonConvert is part of the NewtonSoft.Json Nuget package
-                    stations = JsonConvert.DeserializeObject<Stations>(stationdata);
-
-                    foreach (Station station in stations.results)
-                    {
-                        DB.Models.Station dbStation = new DB.Models.Station();
-                        dbStation.name = station.name;
-                        dbStation.latitude = station.latitude;
-                        dbStation.longitude = station.longitude;
-
-                        dbContext.Stations.Add(dbStation);
-                        dbContext.SaveChanges();
-                    }
-                }
+                dbContext.Stations.Add(dbStation);
             }
-            catch (Exception e)
-            {
-                // This is a useful place to insert a breakpoint and observe the error message
-                Console.WriteLine(e.Message);
-            }
+            dbContext.SaveChanges();
 
-            return View();
+            return View(dbContext.Stations.ToList());
         }
     }
 }

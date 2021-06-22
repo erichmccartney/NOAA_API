@@ -23,9 +23,17 @@ namespace DB.Models
     public class StationParkDistance
     {
         [Key]
+        public int id { get; set; }
         public int stationId { get; set; }
         public int parkId { get; set; }
-        public int distance { get; set; }
+        public double distance { get; set; }
 
+    }
+
+    public class DistanceViewModel
+    {
+        public string stationName { get; set; }
+        public string parkName { get; set; }
+        public double distance { get; set; }
     }
 }
