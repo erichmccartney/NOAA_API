@@ -61,7 +61,6 @@ namespace NOAA_API.Controllers
                     foreach (Station station in stations.results)
                     {
                         DB.Models.Station dbStation = new DB.Models.Station();
-                        dbStation.id = Convert.ToInt32(station.id);
                         dbStation.name = station.name;
                         dbStation.latitude = station.latitude;
                         dbStation.longitude = station.longitude;
