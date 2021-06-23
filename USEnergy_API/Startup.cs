@@ -17,10 +17,22 @@ namespace NOAA_API
 
         public IConfiguration Configuration { get; }
 
+        private bool useSqlServer = false;
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:IEXTradingAzure:ConnectionString"]));
+            services.AddDbContext<ApplicationDbContext>(options =>
+            {
+                if(useSqlServer)
+                {
+                    options.UseSqlServer(Configuration["Data:IEXTradingAzure:ConnectionString"]);
+                }
+                else
+                {
+                    options.UseSqlite("Data Source=Data.db");
+                }
+            });
             services.AddRazorPages();
             // Added from MVC template
             services.AddMvc(option => option.EnableEndpointRouting = false);
