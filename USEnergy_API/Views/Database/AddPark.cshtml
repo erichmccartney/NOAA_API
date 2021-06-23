@@ -1,0 +1,21 @@
+﻿@model List<DB.Models.DistanceViewModel>
+@{
+    Layout = null;
+}
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+    <title>Add Park</title>
+</head>
+<body>
+    <h2>Added Park!</h2>
+
+    @foreach (var distance in Model)
+    {
+        @(distance.parkName + " is " + distance.distance + " miles from " + distance.stationName)
+        <br />
+    }
+</body>
+</html>

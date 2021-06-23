@@ -1,13 +1,10 @@
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using NOAA_API.DataAccess;
 
 namespace NOAA_API
 {
@@ -15,7 +12,7 @@ namespace NOAA_API
     {
         public Startup(IConfiguration configuration)
         {
-
+            Configuration = configuration;
         }
 
         public IConfiguration Configuration { get; }
@@ -23,9 +20,10 @@ namespace NOAA_API
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddDbContext<ApplicationDbContext>(options => options.UseSqlServer(Configuration["Data:IEXTradingAzure:ConnectionString"]));
             services.AddRazorPages();
             // Added from MVC template
-            services.AddMvc();
+            services.AddMvc(option => option.EnableEndpointRouting = false);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -39,6 +37,13 @@ namespace NOAA_API
             else
             {
                 app.UseExceptionHandler("/Home/Error");
+            }
+
+            //This ensures that the database and tables are created as per the Models.
+            using (var serviceScope = app.ApplicationServices.GetService<IServiceScopeFactory>().CreateScope())
+            {
+                var context = serviceScope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+                context.Database.EnsureCreated();
             }
 
             app.UseStaticFiles();
