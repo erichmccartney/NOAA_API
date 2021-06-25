@@ -1,22 +1,133 @@
-﻿@model Form.Models.ContactForm
-
-@{
-    ViewData["Title"] = "Index";
-}
-
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 
 <html>
 <head>
-    <meta name="viewport" content="width=device-width" />
-    <title>About Us</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+body {
+  font-family: Tahoma, Helvetica, sans-serif;
+  margin: 0;
+}
+
+html {
+  box-sizing: border-box;
+}
+
+*, *:before, *:after {
+  box-sizing: inherit;
+}
+
+.column {
+  float: left;
+  width: 33.3%;
+  margin-bottom: 16px;
+  padding: 0 8px;
+}
+
+.card {
+  box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
+  margin: 8px;
+}
+
+.about-section {
+  padding: 50px;
+  text-align: center;
+  background-color: beige;
+  color: grey;
+}
+
+.container {
+  padding: 0 16px;
+}
+
+.container::after, .row::after {
+  content: "";
+  clear: both;
+  display: table;
+}
+
+.title {
+  color: black;
+}
+
+.button {
+  border: none;
+  outline: 0;
+  display: inline-block;
+  padding: 8px;
+  color: white;
+  background-color: #000;
+  text-align: center;
+  cursor: pointer;
+  width: 100%;
+}
+
+.button:hover {
+  background-color: #555;
+}
+
+@media screen and (max-width: 650px) {
+  .column {
+    width: 100%;
+    display: block;
+  }
+}
+    </style>
 </head>
 <body>
-    <h2>Team 6</h2>
-    <form asp-controller="Home" asp-action="ContactUs" method="post">
-        <p><input asp-for="Name" /> <input asp-for="Email" /></p>
 
-        <button type ="submit">Submit</button>
-    </form>
+    <div class="about-section">
+        <h1>About Us Page</h1>
+        <p>We provide a distance relationship between United States National Park Service parks and National Oceanic and Atmospheric Atministration stations.</p>
+
+        <p>
+            The National Park Service is entrusted with the maintenance of our beloved national parks.
+        </p>
+        <p>
+            The National Oceanic and Atmospheric Administration is entrusted with better understanding our natural world and helping protect its precious resources.
+        </p>
+        <p>We believe that bridging the gap between these two storied agencies could help protect and prolong the health of our national parks by bringing science to the forefront.</p>
+    </div>
+
+    <h2 style="text-align:center">Our Team</h2>
+    <div class="row">
+        <div class="column">
+            <div class="card">
+                <div class="container">
+                    <h2>Jennifer Rodriguez-Dowd</h2>
+                    <p class="title">CEO & Founder</p>
+                    <p>Jennifer has a long interest in the preservation of our national parks. She enjoys long hikes and birdwatching in the many national parks that we have in our beautiful country.</p>
+                    <p>rodriguezdowd@usf.edu</p>
+                    <p><button class="button">Contact</button></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="card">
+                <div class="container">
+                    <h2>Erich McCartney</h2>
+                    <p class="title">COO & Founder</p>
+                    <p>Erich is fascinated by the outdoors and takes great pride in working in order to preserve them.</p>
+                    <p>emccartney@usf.edu</p>
+                    <p><button class="button">Contact</button></p>
+                </div>
+            </div>
+        </div>
+
+        <div class="column">
+            <div class="card">
+                <div class="container">
+                    <h2>Juan Botero</h2>
+                    <p class="title">CFO & Founder</p>
+                    <p>Juan has fond memories of visiting national parks with his family as a kid. Yosemite is his favorite.</p>
+                    <p>boteroj@usf.edu</p>
+                    <p><button class="button">Contact</button></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
 </body>
 </html>
+
